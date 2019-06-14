@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	StartStamp = 1480166465631 //起始时间戳
+	StartStamp = 1480166465 //起始时间戳
 
 	// 占用位数
 	StampBit    = 32 //秒级时间戳位数
