@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+type Snowflake interface {
+	NextID() int64
+}
+
 const (
 	StartStamp = 1480166465 //起始时间戳
 
@@ -26,24 +30,24 @@ const (
 	MaxSequence = ^(int64(-1) << SequenceBit)
 )
 
-type Snowflake struct {
+type snowflake struct {
 	sync.Mutex
 	sequence  int64
 	machineId int64
 	lastStamp int64
 }
 
-func New(machineId int64) *Snowflake {
+func New(machineId int64) *snowflake {
 	if machineId > MaxMachine {
 		panic("Machine id greater than maximum.")
 	}
-	return &Snowflake{
+	return &snowflake{
 		machineId: machineId,
 		lastStamp: time.Now().Unix(),
 	}
 }
 
-func (s *Snowflake) NextID() int64 {
+func (s *snowflake) NextID() int64 {
 	s.Lock()
 	defer s.Unlock()
 
@@ -67,11 +71,11 @@ func (s *Snowflake) NextID() int64 {
 	return (nowStamp-StartStamp)<<StampLeft | s.machineId<<MachineLeft | s.sequence
 }
 
-func (s *Snowflake) getNowStamp() int64 {
+func (s *snowflake) getNowStamp() int64 {
 	return time.Now().Unix()
 }
 
-func (s *Snowflake) getNextStamp() int64 {
+func (s *snowflake) getNextStamp() int64 {
 	stamp := s.getNowStamp()
 	if stamp <= s.lastStamp {
 		stamp = s.getNowStamp()
